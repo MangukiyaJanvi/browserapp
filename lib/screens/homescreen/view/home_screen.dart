@@ -14,6 +14,14 @@ class _HomeScreenState extends State<HomeScreen> {
   HomeProvider? homeProviderTrue;
   HomeProvider? homeProviderFalse;
   TextEditingController txtsearch=TextEditingController();
+  PullToRefreshController? pullToRefreshController;
+  @override
+  void initState() {
+    super.initState();
+    pullToRefreshController =PullToRefreshController(onRefresh: () {
+      homeProviderTrue!.inAppWebViewController!.reload();
+    },);
+  }
   @override
   Widget build(BuildContext context) {
     homeProviderTrue=Provider.of<HomeProvider>(context,listen: true);
@@ -62,17 +70,22 @@ class _HomeScreenState extends State<HomeScreen> {
                 initialUrlRequest: URLRequest(
                   url: Uri.parse('https://www.google.com/'),
                 ),
+                pullToRefreshController: pullToRefreshController!,
                 onProgressChanged: (controller, progress) {
+                  pullToRefreshController!.endRefreshing();
                   homeProviderFalse!.changeProgress(progress/100);
                 },
                 onLoadStart: (controller, url) {
+                  pullToRefreshController!.endRefreshing();
                   homeProviderFalse!.inAppWebViewController = controller;
                 },
                 onLoadStop: (controller, url) {
+                  pullToRefreshController!.endRefreshing();
                   homeProviderFalse!.inAppWebViewController = controller;
 
                 },
                 onLoadError: (controller, url, code, message) {
+                  pullToRefreshController!.endRefreshing();
                   homeProviderFalse!.inAppWebViewController = controller;
 
                 },
